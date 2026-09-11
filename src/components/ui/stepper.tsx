@@ -1,7 +1,13 @@
 import { cn } from 'cn'
 import { Check, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { createContext, type ReactNode, use, useState } from 'react'
+import {
+  createContext,
+  type PropsWithChildren,
+  type ReactNode,
+  use,
+  useState,
+} from 'react'
 import { Button } from './button'
 
 interface IStepperContext {
@@ -115,6 +121,14 @@ export function Stepper({ initialStep = 0, steps }: IStepperProps) {
         </div>
       </div>
     </StepperContext>
+  )
+}
+
+export function StepperFooter({ children }: PropsWithChildren) {
+  return (
+    <footer className="mt-6 flex w-full items-center justify-between">
+      {children}
+    </footer>
   )
 }
 
