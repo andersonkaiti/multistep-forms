@@ -1,11 +1,12 @@
+import { useStepper } from '@hooks/use-stepper'
 import { cn } from 'cn'
 import { Check, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
+  type ComponentPropsWithRef,
   createContext,
   type PropsWithChildren,
   type ReactNode,
-  use,
   useState,
 } from 'react'
 import { Button } from './button'
@@ -18,7 +19,7 @@ interface IStepperContext {
   currentStep: number
 }
 
-const StepperContext = createContext({} as IStepperContext)
+export const StepperContext = createContext({} as IStepperContext)
 
 export interface IStep {
   label: string
@@ -78,7 +79,7 @@ export function Stepper({ initialStep = 0, steps }: IStepperProps) {
             return (
               <div
                 key={step.label}
-                className="group relative flex flex-1 cursor-pointer flex-col items-center gap-2"
+                className="group relative flex flex-1 flex-col items-center gap-2"
               >
                 <motion.div
                   className={cn(
@@ -132,11 +133,12 @@ export function StepperFooter({ children }: PropsWithChildren) {
   )
 }
 
-export function StepperBackButton() {
-  const { previousStep, initialStep, currentStep } = use(StepperContext)
+export function StepperBackButton(props: ComponentPropsWithRef<typeof Button>) {
+  const { previousStep, initialStep, currentStep } = useStepper()
 
   return (
     <Button
+      size="sm"
       onClick={previousStep}
       disabled={initialStep === currentStep}
       variant="secondary"
@@ -144,17 +146,23 @@ export function StepperBackButton() {
         'cursor-pointer',
         'disabled:pointer-events-none disabled:opacity-50',
       )}
+      {...props}
     >
       Voltar
     </Button>
   )
 }
 
-export function StepperNextButton() {
-  const { nextStep, totalSteps, currentStep } = use(StepperContext)
+export function StepperNextButton(props: ComponentPropsWithRef<typeof Button>) {
+  const { nextStep, totalSteps, currentStep } = useStepper()
 
   return (
-    <Button onClick={nextStep} className="cursor-pointer hover:bg-primary/90">
+    <Button
+      size="sm"
+      onClick={nextStep}
+      className="cursor-pointer hover:bg-primary/90"
+      {...props}
+    >
       {totalSteps === currentStep ? 'Finalizar' : 'Próximo'}
     </Button>
   )
