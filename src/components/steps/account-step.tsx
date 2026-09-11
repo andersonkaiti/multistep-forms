@@ -1,6 +1,7 @@
 import { ErrorMessage } from '@hookform/error-message'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useStepper } from '@hooks/use-stepper'
+import { safeGetSessionStorageGetItem } from '@utils/safe-get-local-storage-value'
 import { AlertCircleIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -19,17 +20,35 @@ const accountStepSchema = z.object({
   password: z.string().min(1, 'Informe a senha'),
 })
 
+type AccountStep = z.infer<typeof accountStepSchema>
+
+const ACCOUNT_KEY = 'account-step'
+
 export function AccountStep() {
   const { nextStep } = useStepper()
 
+  const initialValue = safeGetSessionStorageGetItem<AccountStep>(ACCOUNT_KEY)
+
   const form = useForm({
+    disabled: !!initialValue,
     resolver: zodResolver(accountStepSchema),
+    defaultValues: {
+      email: initialValue?.email ?? '',
+      password: initialValue?.password ?? '',
+    },
   })
 
   const handleSubmit = form.handleSubmit(async (formData) => {
-    console.log(formData)
-
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    if (!initialValue) {
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+      sessionStorage.setItem(
+        ACCOUNT_KEY,
+        JSON.stringify({
+          ...formData,
+          password: '*'.repeat(formData.password.length),
+        }),
+      )
+    }
 
     nextStep()
   })
