@@ -1,3 +1,10 @@
+import { steps } from '@components/steps'
+import { Stepper } from './components/ui/stepper'
+
 export function App() {
-  return <h1>Hello, World!</h1>
+  return (
+    <div className="mx-auto flex min-h-screen max-w-4xl justify-center px-5 py-20">
+      <Stepper steps={steps} />
+    </div>
+  )
 }
