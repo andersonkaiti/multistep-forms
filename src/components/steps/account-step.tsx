@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useStepper } from '@hooks/use-stepper'
 import { safeGetSessionStorageGetItem } from '@utils/safe-get-local-storage-value'
 import { AlertCircleIcon } from 'lucide-react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Alert, AlertDescription } from '../ui/alert'
@@ -52,6 +53,22 @@ export function AccountStep() {
 
     nextStep()
   })
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!form.formState.isDirty) {
+        return
+      }
+
+      event.preventDefault()
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [form.formState.isDirty])
 
   return (
     <form className="w-full" onSubmit={handleSubmit}>
