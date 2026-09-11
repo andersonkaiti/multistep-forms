@@ -1,8 +1,8 @@
 import { ErrorMessage } from '@hookform/error-message'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { AlertCircleIcon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useFormContext, useFormState } from 'react-hook-form'
 import { z } from 'zod'
+import type { StepsSchema } from '../../app'
 import { Alert, AlertDescription } from '../ui/alert'
 import { Field, FieldGroup, FieldLabel } from '../ui/field'
 import { Input } from '../ui/input'
@@ -13,36 +13,30 @@ import {
 } from '../ui/stepper'
 import { StepHeader } from './step-header'
 
-const addressStepSchema = z.object({
+export const addressStepSchema = z.object({
   state: z.string().min(1, 'Informe o seu Estado'),
   city: z.string().min(1, 'Informe a sua cidade'),
   street: z.string().min(1, 'Informe a sua rua'),
 })
 
 export function AddressStep() {
-  const form = useForm({
-    resolver: zodResolver(addressStepSchema),
-  })
+  const form = useFormContext<StepsSchema>()
 
-  const handleSubmit = form.handleSubmit(async (formData) => {
-    console.log(formData)
-
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-  })
+  const { errors } = useFormState({ control: form.control })
 
   return (
-    <form className="w-full" onSubmit={handleSubmit}>
+    <div className="w-full">
       <StepHeader title="Endereço" description="De onde você é?" />
 
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="state">Estado</FieldLabel>
 
-          <Input id="state" {...form.register('state')} />
+          <Input id="state" {...form.register('addressStep.state')} />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="state"
+            errors={errors}
+            name="addressStep.state"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -55,11 +49,11 @@ export function AddressStep() {
         <Field>
           <FieldLabel htmlFor="city">Cidade</FieldLabel>
 
-          <Input id="city" {...form.register('city')} />
+          <Input id="city" {...form.register('addressStep.city')} />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="city"
+            errors={errors}
+            name="addressStep.city"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -72,11 +66,11 @@ export function AddressStep() {
         <Field>
           <FieldLabel htmlFor="street">Endereço</FieldLabel>
 
-          <Input id="street" {...form.register('street')} />
+          <Input id="street" {...form.register('addressStep.street')} />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="street"
+            errors={errors}
+            name="addressStep.street"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -88,14 +82,10 @@ export function AddressStep() {
       </FieldGroup>
 
       <StepperFooter>
-        <StepperBackButton disabled={form.formState.isSubmitting} />
+        <StepperBackButton />
 
-        <StepperNextButton
-          type="submit"
-          onClick={handleSubmit}
-          disabled={form.formState.isSubmitting}
-        />
+        <StepperNextButton type="submit" />
       </StepperFooter>
-    </form>
+    </div>
   )
 }

@@ -1,11 +1,9 @@
 import { ErrorMessage } from '@hookform/error-message'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useStepper } from '@hooks/use-stepper'
-import { safeGetSessionStorageGetItem } from '@utils/safe-get-local-storage-value'
 import { AlertCircleIcon } from 'lucide-react'
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useFormContext, useFormState } from 'react-hook-form'
 import { z } from 'zod'
+import type { StepsSchema } from '../../app'
 import { Alert, AlertDescription } from '../ui/alert'
 import { Field, FieldGroup, FieldLabel } from '../ui/field'
 import { Input } from '../ui/input'
@@ -16,62 +14,20 @@ import {
 } from '../ui/stepper'
 import { StepHeader } from './step-header'
 
-const accountStepSchema = z.object({
+export const accountStepSchema = z.object({
   email: z.email('Informe um e-mail válido'),
   password: z.string().min(1, 'Informe a senha'),
 })
 
-type AccountStep = z.infer<typeof accountStepSchema>
-
-const ACCOUNT_KEY = 'account-step'
-
 export function AccountStep() {
+  const form = useFormContext<StepsSchema>()
+
+  const { errors } = useFormState({ control: form.control })
+
   const { nextStep } = useStepper()
 
-  const initialValue = safeGetSessionStorageGetItem<AccountStep>(ACCOUNT_KEY)
-
-  const form = useForm({
-    disabled: !!initialValue,
-    resolver: zodResolver(accountStepSchema),
-    defaultValues: {
-      email: initialValue?.email ?? '',
-      password: initialValue?.password ?? '',
-    },
-  })
-
-  const handleSubmit = form.handleSubmit(async (formData) => {
-    if (!initialValue) {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      sessionStorage.setItem(
-        ACCOUNT_KEY,
-        JSON.stringify({
-          ...formData,
-          password: '*'.repeat(formData.password.length),
-        }),
-      )
-    }
-
-    nextStep()
-  })
-
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!form.formState.isDirty) {
-        return
-      }
-
-      event.preventDefault()
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-    }
-  }, [form.formState.isDirty])
-
   return (
-    <form className="w-full" onSubmit={handleSubmit}>
+    <div className="w-full">
       <StepHeader
         title="Conta"
         description="Seus dados de acesso à plataforma"
@@ -81,11 +37,11 @@ export function AccountStep() {
         <Field>
           <FieldLabel htmlFor="email">E-mail</FieldLabel>
 
-          <Input id="email" {...form.register('email')} />
+          <Input id="email" {...form.register('accountStep.email')} />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="email"
+            errors={errors}
+            name="accountStep.email"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -98,11 +54,15 @@ export function AccountStep() {
         <Field>
           <FieldLabel htmlFor="password">Senha</FieldLabel>
 
-          <Input id="password" type="password" {...form.register('password')} />
+          <Input
+            id="password"
+            type="password"
+            {...form.register('accountStep.password')}
+          />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="password"
+            errors={errors}
+            name="accountStep.password"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -116,12 +76,8 @@ export function AccountStep() {
       <StepperFooter>
         <StepperBackButton />
 
-        <StepperNextButton
-          type="submit"
-          onClick={handleSubmit}
-          disabled={form.formState.isSubmitting}
-        />
+        <StepperNextButton onClick={nextStep} />
       </StepperFooter>
-    </form>
+    </div>
   )
 }

@@ -1,10 +1,10 @@
 import { ErrorMessage } from '@hookform/error-message'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useStepper } from '@hooks/use-stepper'
 import { AlertCircleIcon } from 'lucide-react'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useFormContext, useFormState } from 'react-hook-form'
 import { PatternFormat } from 'react-number-format'
 import { z } from 'zod'
+import type { StepsSchema } from '../../app'
 import { Alert, AlertDescription } from '../ui/alert'
 import { Field, FieldGroup, FieldLabel } from '../ui/field'
 import { Input } from '../ui/input'
@@ -15,32 +15,21 @@ import {
 } from '../ui/stepper'
 import { StepHeader } from './step-header'
 
-const personalDataStepSchema = z.object({
+export const personalDataStepSchema = z.object({
   firstName: z.string().min(1, 'Informe o seu primeiro nome'),
   lastName: z.string().min(1, 'Informe o seu último nome'),
   document: z.string().min(1, 'Informe o seu CPF'),
 })
 
 export function PersonalDataStep() {
+  const form = useFormContext<StepsSchema>()
+
+  const { errors } = useFormState({ control: form.control })
+
   const { nextStep } = useStepper()
 
-  const form = useForm({
-    resolver: zodResolver(personalDataStepSchema),
-    defaultValues: {
-      document: '',
-    },
-  })
-
-  const handleSubmit = form.handleSubmit(async (formData) => {
-    console.log(formData)
-
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    nextStep()
-  })
-
   return (
-    <form className="w-full" onSubmit={handleSubmit}>
+    <div className="w-full">
       <StepHeader
         title="Dados pessoais"
         description="Conte-nos mais sobre você"
@@ -50,11 +39,11 @@ export function PersonalDataStep() {
         <Field>
           <FieldLabel htmlFor="firstName">Primeiro nome</FieldLabel>
 
-          <Input id="firstName" {...form.register('firstName')} />
+          <Input id="firstName" {...form.register('personalData.firstName')} />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="firstName"
+            errors={errors}
+            name="personalData.firstName"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -67,11 +56,11 @@ export function PersonalDataStep() {
         <Field>
           <FieldLabel htmlFor="lastName">Sobrenome</FieldLabel>
 
-          <Input id="lastName" {...form.register('lastName')} />
+          <Input id="lastName" {...form.register('personalData.lastName')} />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="lastName"
+            errors={errors}
+            name="personalData.lastName"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -86,7 +75,7 @@ export function PersonalDataStep() {
 
           <Controller
             control={form.control}
-            name="document"
+            name="personalData.document"
             render={({ field: { value, ref, onChange } }) => (
               <PatternFormat
                 id="document"
@@ -101,8 +90,8 @@ export function PersonalDataStep() {
           />
 
           <ErrorMessage
-            errors={form.formState.errors}
-            name="document"
+            errors={errors}
+            name="personalData.document"
             render={({ message }) => (
               <Alert variant="destructive">
                 <AlertCircleIcon />
@@ -114,14 +103,10 @@ export function PersonalDataStep() {
       </FieldGroup>
 
       <StepperFooter>
-        <StepperBackButton disabled={form.formState.isSubmitting} />
+        <StepperBackButton />
 
-        <StepperNextButton
-          type="submit"
-          onClick={handleSubmit}
-          disabled={form.formState.isSubmitting}
-        />
+        <StepperNextButton onClick={nextStep} />
       </StepperFooter>
-    </form>
+    </div>
   )
 }
