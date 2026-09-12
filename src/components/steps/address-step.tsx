@@ -22,7 +22,7 @@ export const addressStepSchema = z.object({
 export function AddressStep() {
   const form = useFormContext<StepsSchema>()
 
-  const { errors } = useFormState({ control: form.control })
+  const { errors, isSubmitting } = useFormState({ control: form.control })
 
   return (
     <div className="w-full">
@@ -84,7 +84,7 @@ export function AddressStep() {
       <StepperFooter>
         <StepperBackButton />
 
-        <StepperNextButton type="submit" />
+        <StepperNextButton type="submit" isLoading={isSubmitting} />
       </StepperFooter>
     </div>
   )

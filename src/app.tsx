@@ -26,8 +26,10 @@ export function App() {
     },
   })
 
-  const handleSubmit = form.handleSubmit((formData) => {
+  const handleSubmit = form.handleSubmit(async (formData) => {
     console.log(formData)
+
+    await new Promise((resolve) => setTimeout(resolve, 2000))
   })
 
   useEffect(() => {

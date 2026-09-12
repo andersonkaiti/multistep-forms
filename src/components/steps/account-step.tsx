@@ -26,6 +26,14 @@ export function AccountStep() {
 
   const { nextStep } = useStepper()
 
+  async function handleNextStep() {
+    const isValid = await form.trigger('accountStep')
+
+    if (isValid) {
+      nextStep()
+    }
+  }
+
   return (
     <div className="w-full">
       <StepHeader
@@ -76,7 +84,7 @@ export function AccountStep() {
       <StepperFooter>
         <StepperBackButton />
 
-        <StepperNextButton onClick={nextStep} />
+        <StepperNextButton onClick={handleNextStep} />
       </StepperFooter>
     </div>
   )

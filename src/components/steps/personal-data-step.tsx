@@ -18,7 +18,7 @@ import { StepHeader } from './step-header'
 export const personalDataStepSchema = z.object({
   firstName: z.string().min(1, 'Informe o seu primeiro nome'),
   lastName: z.string().min(1, 'Informe o seu último nome'),
-  document: z.string().min(1, 'Informe o seu CPF'),
+  document: z.string().min(11, 'Informe o seu CPF'),
 })
 
 export function PersonalDataStep() {
@@ -27,6 +27,14 @@ export function PersonalDataStep() {
   const { errors } = useFormState({ control: form.control })
 
   const { nextStep } = useStepper()
+
+  async function handleNextStep() {
+    const isValid = await form.trigger('personalData')
+
+    if (isValid) {
+      nextStep()
+    }
+  }
 
   return (
     <div className="w-full">
@@ -105,7 +113,7 @@ export function PersonalDataStep() {
       <StepperFooter>
         <StepperBackButton />
 
-        <StepperNextButton onClick={nextStep} />
+        <StepperNextButton onClick={handleNextStep} />
       </StepperFooter>
     </div>
   )

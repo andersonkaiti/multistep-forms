@@ -1,6 +1,6 @@
 import { useStepper } from '@hooks/use-stepper'
 import { cn } from 'cn'
-import { Check, type LucideIcon } from 'lucide-react'
+import { Check, Loader2, type LucideIcon } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   type ComponentPropsWithRef,
@@ -153,17 +153,45 @@ export function StepperBackButton(props: ComponentPropsWithRef<typeof Button>) {
   )
 }
 
-export function StepperNextButton(props: ComponentPropsWithRef<typeof Button>) {
+export function StepperNextButton({
+  isLoading,
+  ...props
+}: ComponentPropsWithRef<typeof Button> & { isLoading?: boolean }) {
   const { nextStep, totalSteps, currentStep } = useStepper()
 
   return (
     <Button
       size="sm"
       onClick={nextStep}
-      className="cursor-pointer hover:bg-primary/90"
+      className="relative cursor-pointer overflow-hidden hover:bg-primary/90"
       {...props}
     >
-      {totalSteps === currentStep ? 'Finalizar' : 'Próximo'}
+      <motion.span
+        animate={{
+          y: isLoading ? -20 : 0,
+          opacity: isLoading ? 0 : 1,
+        }}
+        transition={{
+          duration: 0.25,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+      >
+        {totalSteps === currentStep ? 'Finalizar' : 'Próximo'}
+      </motion.span>
+
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center"
+        animate={{
+          y: isLoading ? 0 : 20,
+          opacity: isLoading ? 1 : 0,
+        }}
+        transition={{
+          duration: 0.25,
+          ease: [0.22, 1, 0.36, 1],
+        }}
+      >
+        <Loader2 className="size-4 animate-spin" />
+      </motion.div>
     </Button>
   )
 }
