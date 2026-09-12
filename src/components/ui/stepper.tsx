@@ -112,7 +112,7 @@ export function Stepper({ initialStep = 0, steps }: IStepperProps) {
               key={currentStep}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              exit={{ opacity: 0, y: -10, pointerEvents: 'none' }}
               transition={{ duration: 0.2 }}
               className="w-full space-y-2"
             >
